@@ -27,6 +27,7 @@ Verified machine learning implementations completed on [TensorTonic](https://www
 | Train a Tiny Micrograd MLP | Train a supplied scalar-output MLP with manual reverse-mode differentiation and deterministic gradient descent. | https://www.tensortonic.com/problems/autograd-l08-train-tiny-micrograd-mlp |
 | RMSNorm Forward Pass | Normalize each final-dimension vector by its root mean square and apply the learned scale without mean subtraction. | https://www.tensortonic.com/problems/cs336-l03-rmsnorm-forward |
 | Decode Attention with a KV Cache | Append one key and value position to a KV cache and compute grouped-query attention for the next token. | https://www.tensortonic.com/problems/cs336-l10-kv-cache-decode-step |
+| Perform Exact Speculative Sampling | Accept draft tokens using the exact target-to-draft probability ratio and sample the first rejection from the normalized positive residual distribution. | https://www.tensortonic.com/problems/cs336-l10-speculative-sampling |
 
 View my verified ML profile: [TensorTonic profile](https://www.tensortonic.com/profile/zfiyou)
 <!-- tensortonic:end -->
