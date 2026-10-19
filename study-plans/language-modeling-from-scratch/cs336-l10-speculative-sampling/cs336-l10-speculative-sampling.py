@@ -29,9 +29,9 @@ def speculative_sampling(
     r = weight / weight.sum()
     cdf = r.cumsum(dim=-1)
     replace_token = torch.searchsorted(cdf, residual_random_value, right=True)
-    if replace_token.item() == r.numel():
-        positive_indices = torch.nonzero(r > 0, as_tuple=True)[0]
-        replace_token = positive_indices[-1]
+    # if replace_token.item() == r.numel():
+    #     positive_indices = torch.nonzero(r > 0, as_tuple=True)[0]
+    #     replace_token = positive_indices[-1]
     output_tokens = torch.cat([draft_tokens[:rejected_pos], replace_token.reshape(1)])
     return {
         "tokens": output_tokens,
