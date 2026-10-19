@@ -13,8 +13,8 @@ def speculative_sampling(
     q = draft_probabilities[positions, draft_tokens]
     a = torch.nan_to_num(p / q, nan=0.0, posinf=1.0).clamp(max=1.0)
 
-    accepted = a > acceptance_random_values
-    rejected_pos = torch.nonzero(~accepted, as_tuple=True)[0]
+    accepted = a <= acceptance_random_values
+    rejected_pos = torch.nonzero(accepted, as_tuple=True)[0]
     if rejected_pos.numel() == 0:
         return {
             "tokens": draft_tokens,
