@@ -6,7 +6,8 @@ def neuron_backward(inputs: torch.Tensor, weights: torch.Tensor, bias: torch.Ten
     """
     a = inputs @ weights + bias
     y = torch.tanh(a)
-    delta = upstream_gradient * (1 - y ** 2)
-    inputs_grad = delta * weights
-    weights_grad = delta * inputs
-    return (y, inputs_grad, weights_grad, delta)
+    theta = upstream_gradient * (1 - y ** 2)
+    x_grad = theta * weights
+    w_grad = theta * inputs
+    return (y, x_grad, w_grad, theta)
+    
