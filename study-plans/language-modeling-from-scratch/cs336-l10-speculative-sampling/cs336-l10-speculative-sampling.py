@@ -9,33 +9,28 @@ def speculative_sampling(
     Returns a dict: tokens (int64 tensor), accepted_count (int), rejected_at (int or None).
     """
     positions = torch.arange(draft_tokens.numel())
-    p = target_probabilities[positions, draft_tokens]
-    q = draft_probabilities[positions, draft_tokens]
-    a = torch.nan_to_num(p / q, nan=0.0, posinf=1.0).clamp(max=1.0)
-
-    accepted = a <= acceptance_random_values
-    rejected_pos = torch.nonzero(accepted, as_tuple=True)[0]
-    if rejected_pos.numel() == 0:
+    q = draft_probabilities[positions, draft_tokens].clamp(min=0.0)
+    p = target_probabilities[positions, draft_tokens].clamp(min=0.0)
+    a = (p / q).nan_to_num(nan=0).clamp(max=1.0)
+    reject = (a <= acceptance_random_values)
+    reject_pos = torch.where(reject == True)[0]
+    if reject_pos.numel() == 0:
         return {
             "tokens": draft_tokens,
             "accepted_count": draft_tokens.numel(),
             "rejected_at": None
-            }
-
-    rejected_pos = rejected_pos[0].item()
-    p = target_probabilities[rejected_pos]
-    q = draft_probabilities[rejected_pos]
-    weight = (p - q).clamp(min=0)
-    r = weight / weight.sum()
-    cdf = r.cumsum(dim=-1)
-    replace_token = torch.searchsorted(cdf, residual_random_value, right=True)
+        }
+    reject_pos = reject_pos[0].item()
+    r_u = (target_probabilities[reject_pos] - draft_probabilities[reject_pos]).clamp(min=0.0)
+    r = r_u / r_u.sum()
+    cdf = torch.cumsum(r, dim=-1)
+    replace_token = torch.searchsorted(cdf, residual_random_value, right=True).unsqueeze(0)
     if replace_token.item() == r.numel():
-        positive_indices = torch.nonzero(r > 0, as_tuple=True)[0]
+        positive_indices = torch.non_zeros(r > 0, as_tuple=True)[0]
         replace_token = positive_indices[-1]
-    output_tokens = torch.cat([draft_tokens[:rejected_pos], replace_token.reshape(1)])
     return {
-        "tokens": output_tokens,
-        "accepted_count": rejected_pos,
-        "rejected_at": rejected_pos
+        "tokens": torch.cat((draft_tokens[:reject_pos], replace_token)),
+        "accepted_count": reject_pos,
+        "rejected_at": reject_pos
     }
     
